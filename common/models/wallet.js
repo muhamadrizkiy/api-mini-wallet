@@ -19,7 +19,7 @@ module.exports = function(Wallet) {
     Wallet.disableRemoteMethodByName('unlink');
     Wallet.disableRemoteMethodByName('replace');
 
-    Wallet.enableWallet = function(options, cb) {
+    Wallet.enableWallet = function(options, callback) {
 
       const walletId = crypto.randomBytes(16).toString("hex");
 
@@ -49,16 +49,16 @@ module.exports = function(Wallet) {
           data.is_disable = false
           Wallet.create(data, function(err, res){
             if(err) {
-              cb(err);
+              callback(err);
             }
             else {
-              cb(null, res);
+              callback(null, res);
             }
           });
         }
         else if (checkState && checkState.is_disable == true) {
           checkState.updateAttributes({is_disable: false}, function(err, res){
-            cb (null, res);
+            callback (null, res);
           })
         } 
         else {
@@ -66,7 +66,7 @@ module.exports = function(Wallet) {
             status : 'Failed',
             message : 'The Wallet Already Exists. Try to Deposits'
           }
-          cb (null, data);
+          callback (null, data);
         }
       })
 
@@ -87,10 +87,25 @@ module.exports = function(Wallet) {
       );
 
 
-    Wallet.getBalance = function(callback) {
+    Wallet.getBalance = function(options,callback) {
 
-      Wallet.find(function(err, result){
+      var filter = {
+        where: {
+          data: {
+            owned_by : options.accessToken.userId
+          }
+        }
+      }
+
+      Wallet.findOne(filter,function(err, result){
         if(err) callback(err);
+        else if (!result || result.is_disable){
+          let data = {
+            status : 'Failed',
+            message : 'Please Enable Your Wallet'
+          }
+          callback (null, data);
+        }
         else callback (null, result);
       });
 
@@ -101,6 +116,7 @@ module.exports = function(Wallet) {
       {
         description: 'View my wallet balance',
         accepts: [
+          {arg: "options", type: "object", http: "optionsFromRequest"}
         ],
         returns: {
           arg: 'result', type: 'object', root: true
@@ -126,6 +142,13 @@ module.exports = function(Wallet) {
 
       Wallet.findOne(filter).then((updateState) => {
         if(!updateState) callback(err);
+        else if (updateState.is_disable){
+          let data = {
+            status : 'Failed',
+            message : 'Please Enable Your Wallet'
+          }
+          callback (null, data);
+        }
         else {
           let newAmount = updateState.amount + amounts
           updateState.updateAttributes({amount: newAmount}, function(err, res){
@@ -168,6 +191,13 @@ module.exports = function(Wallet) {
 
       Wallet.findOne(filter).then((updateState) => {
         if(!updateState) callback(err);
+        else if (updateState.is_disable){
+          let data = {
+            status : 'Failed',
+            message : 'Please Enable Your Wallet'
+          }
+          callback (null, data);
+        }
         else {
           let newAmount = updateState.amount - amounts
           updateState.updateAttributes({amount: newAmount}, function(err, res){
@@ -194,7 +224,7 @@ module.exports = function(Wallet) {
     );
 
 
-    Wallet.disableWallet = function(options, cb) {
+    Wallet.disableWallet = function(options, callback) {
 
       var filter = {
         where: {
@@ -210,11 +240,11 @@ module.exports = function(Wallet) {
             status : 'Failed',
             message : 'Cannot Find The Wallet. Please register your wallet!'
           }
-          cb (null, data);
+          callback (null, data);
         }
         else {
           checkState.updateAttributes({is_disable: true}, function(err, res){
-            cb (null, res);
+            callback (null, res);
           })
         }
       })
