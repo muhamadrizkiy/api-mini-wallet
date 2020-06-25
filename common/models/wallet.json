@@ -11,13 +11,13 @@
       "required": true,
       "default": 0
     },
-    "reference_id": {
-      "type": "string"
-    },
     "is_disable": {
       "type": "boolean",
       "required": true,
       "default": true
+    },
+    "userId": {
+      "type": "number"
     }
   },
   "validations": [],
