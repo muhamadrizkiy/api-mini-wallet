@@ -130,6 +130,48 @@ module.exports = function(Wallet) {
     );
 
 
+    Wallet.withdrawals = function(amounts, options, callback) {
+
+      const reference_id = crypto.randomBytes(16).toString("hex");
+
+      let userId = options.accessToken.userId
+
+      var filter = {
+        where: {
+          data: {
+            owned_by : userId
+          }
+        }
+      }
+
+      Wallet.findOne(filter).then((updateState) => {
+        if(!updateState) callback(err);
+        else {
+          let newAmount = updateState.amount - amounts
+          updateState.updateAttributes({amount: newAmount}, function(err, res){
+            callback (null, res);
+          })
+        } 
+      })
+
+    }
+
+    Wallet.remoteMethod(
+      'withdrawals',
+      {
+        description: 'Use virtual money from my wallet',
+        accepts: [
+          {arg: 'amounts', type: 'number', required: true},
+          {arg: "options", type: "object", http: "optionsFromRequest"}
+        ],
+        returns: {
+          arg: 'result', type: 'object', root: true
+        },
+        http: { path: '/withdrawals', verb: 'post' }
+      }
+    );
+
+
 
 
      
