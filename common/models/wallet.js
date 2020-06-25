@@ -36,17 +36,39 @@ module.exports = function(Wallet) {
         } 
       }
 
-      Wallet.create(data, function(err, res){
-        if(err) {
-          res.status = "failed"
-          res.data = {}
-          cb(err);
+      var filter = {
+        where: {
+          data: {
+            owned_by : options.accessToken.userId
+          }
         }
+      }
+
+      Wallet.findOne(filter).then((checkState) => {
+        if(!checkState) {
+          data.is_disable = false
+          Wallet.create(data, function(err, res){
+            if(err) {
+              cb(err);
+            }
+            else {
+              cb(null, res);
+            }
+          });
+        }
+        else if (checkState && checkState.is_disable == true) {
+          checkState.updateAttributes({is_disable: false}, function(err, res){
+            cb (null, res);
+          })
+        } 
         else {
-          res.is_disable = false
-          cb(null, res)
+          let data = {
+            status : 'Failed',
+            message : 'The Wallet Already Exists. Try to Deposits'
+          }
+          cb (null, data);
         }
-      });
+      })
 
     };
     
@@ -55,7 +77,7 @@ module.exports = function(Wallet) {
         {
           description: 'Enable wallet',
           accepts: [
-            {"arg": "options", "type": "object", "http": "optionsFromRequest"}
+            {arg: "options", type: "object", http: "optionsFromRequest"}
           ],
           returns: {
             arg: 'res', type: 'object', root: true
@@ -172,13 +194,44 @@ module.exports = function(Wallet) {
     );
 
 
+    Wallet.disableWallet = function(options, cb) {
 
+      var filter = {
+        where: {
+          data: {
+            owned_by : options.accessToken.userId
+          }
+        }
+      }
 
-     
+      Wallet.findOne(filter).then((checkState) => {
+        if(!checkState) {
+          let data = {
+            status : 'Failed',
+            message : 'Cannot Find The Wallet. Please register your wallet!'
+          }
+          cb (null, data);
+        }
+        else {
+          checkState.updateAttributes({is_disable: true}, function(err, res){
+            cb (null, res);
+          })
+        }
+      })
+
+    };
     
-
-
-      
-      
-
+    Wallet.remoteMethod(
+        'disableWallet',
+        {
+          description: 'Disable wallet',
+          accepts: [
+            {arg: "options", type: "object", http: "optionsFromRequest"}
+          ],
+          returns: {
+            arg: 'res', type: 'object', root: true
+          },
+          http: { path: '/', verb: 'patch' }
+        }
+      );
 };
