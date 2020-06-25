@@ -1,18 +1,25 @@
 'use strict';
 
-let helpers = require('utils');
 let crypto = require('crypto')
 
 module.exports = function(Wallet) {
 
-    helpers.remoteMethod.disableAllMethods(Wallet,
-		[
-			'find',
-			'create',
-      'findById',
-			'updateAttributes',
-			'deleteById'
-    ]);
+    Wallet.disableRemoteMethodByName('create'); 
+    Wallet.disableRemoteMethodByName('upsert');
+    Wallet.disableRemoteMethodByName('updateAll');
+    Wallet.disableRemoteMethodByName('prototype.updateAttributes');
+
+    Wallet.disableRemoteMethodByName('find');
+    Wallet.disableRemoteMethodByName('findById');
+    Wallet.disableRemoteMethodByName('findOne');
+
+    Wallet.disableRemoteMethodByName('deleteById');
+    Wallet.disableRemoteMethodByName('exists');
+    Wallet.disableRemoteMethodByName('count');
+    Wallet.disableRemoteMethodByName('replaceOrCreate');
+    Wallet.disableRemoteMethodByName('upsertWithWhere');
+    Wallet.disableRemoteMethodByName('unlink');
+    Wallet.disableRemoteMethodByName('replace');
 
     Wallet.enableWallet = function(cb) {
 
@@ -48,15 +55,40 @@ module.exports = function(Wallet) {
     Wallet.remoteMethod(
         'enableWallet',
         {
-          description: 'enable wallet',
+          description: 'Enable wallet',
           accepts: [
           ],
           returns: {
             arg: 'res', type: 'object', root: true
           },
-          http: { path: '/enable', verb: 'post' }
+          http: { path: '/', verb: 'post' }
         }
       );
+
+
+      Wallet.getBalance = function(callback) {
+
+        Wallet.find(function(err, result){
+          if(err) callback(err);
+          else callback (null, result);
+        });
+  
+      };
+
+      Wallet.remoteMethod(
+        'getBalance',
+        {
+          description: 'View my wallet balance',
+          accepts: [
+          ],
+          returns: {
+            arg: 'result', type: 'object', root: true
+          },
+          http: { path: '/', verb: 'get' }
+        }
+      );
+
+
 
 
      
