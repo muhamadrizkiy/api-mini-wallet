@@ -4,6 +4,13 @@ let crypto = require('crypto')
 
 module.exports = function(Wallet) {
 
+
+    let MSG_ERR_NOT_FOUND = 'Cannot Find The Wallet. Please register your wallet!'
+    let MSG_ERR_EXIST = 'The Wallet Already Exists. Try to Deposits'
+    let MSG_ERR_BALANCE = 'The amount being used must not be more than the current balance'
+    let MSG_ERR_DISABLE = 'Please Enable Your Wallet'
+
+
     Wallet.disableRemoteMethodByName('create'); 
     Wallet.disableRemoteMethodByName('upsert');
     Wallet.disableRemoteMethodByName('updateAll');
@@ -64,7 +71,7 @@ module.exports = function(Wallet) {
         else {
           let data = {
             status : 'Failed',
-            message : 'The Wallet Already Exists. Try to Deposits'
+            message : MSG_ERR_EXIST
           }
           callback (null, data);
         }
@@ -102,7 +109,7 @@ module.exports = function(Wallet) {
         else if (!result || result.is_disable){
           let data = {
             status : 'Failed',
-            message : 'Please Enable Your Wallet'
+            message : MSG_ERR_DISABLE
           }
           callback (null, data);
         }
@@ -145,7 +152,7 @@ module.exports = function(Wallet) {
         else if (updateState.is_disable){
           let data = {
             status : 'Failed',
-            message : 'Please Enable Your Wallet'
+            message : MSG_ERR_DISABLE
           }
           callback (null, data);
         }
@@ -174,7 +181,6 @@ module.exports = function(Wallet) {
       }
     );
 
-
     Wallet.withdrawals = function(amounts, options, callback) {
 
       const reference_id = crypto.randomBytes(16).toString("hex");
@@ -194,7 +200,14 @@ module.exports = function(Wallet) {
         else if (updateState.is_disable){
           let data = {
             status : 'Failed',
-            message : 'Please Enable Your Wallet'
+            message : MSG_ERR_DISABLE
+          }
+          callback (null, data);
+        }
+        else if (amounts > updateState.amount) {
+          let data = {
+            status : 'Failed',
+            message : MSG_ERR_BALANCE
           }
           callback (null, data);
         }
@@ -238,7 +251,7 @@ module.exports = function(Wallet) {
         if(!checkState) {
           let data = {
             status : 'Failed',
-            message : 'Cannot Find The Wallet. Please register your wallet!'
+            message : MSG_ERR_NOT_FOUND
           }
           callback (null, data);
         }
@@ -263,5 +276,5 @@ module.exports = function(Wallet) {
           },
           http: { path: '/', verb: 'patch' }
         }
-      );
+    );
 };
