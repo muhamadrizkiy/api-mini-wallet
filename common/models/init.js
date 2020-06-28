@@ -46,7 +46,7 @@ module.exports = function(Init) {
           var accountData = {
             username : customer_xid,
             password : password,
-            email : 'muhamadrizkiy@gmail.com'
+            email : customer_xid+'@gmail.com'
           }
           User.create(accountData, function(err, userInstance) {
             console.log(userInstance)
