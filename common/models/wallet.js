@@ -25,6 +25,9 @@ module.exports = function(Wallet) {
     Wallet.disableRemoteMethodByName('unlink');
     Wallet.disableRemoteMethodByName('replace');
 
+    let date = new Date()
+    let timestamp = date.toISOString()
+
     Wallet.enableWallet = function(options, callback) {
 
       if (!options.accessToken) {
@@ -39,8 +42,7 @@ module.exports = function(Wallet) {
         var data = {
               id: crypto.randomBytes(16).toString("hex"),
               owned_by: userId,
-              status: "enabled",
-              enabled_at: Date.now().toISOString
+              status: "enabled"
         }
 
         var filter = {
@@ -112,7 +114,7 @@ module.exports = function(Wallet) {
         Wallet.findOne(filter,function(err, result){
           console.log(result)
           if(err) callback(err);
-          else if (!result){
+          else if (!result || result.status === 'disabled'){
             let data = {
               error : true ,
               message : MSG_ERR_DISABLE
@@ -160,7 +162,13 @@ module.exports = function(Wallet) {
         }
 
         Wallet.findOne(filter).then((updateState) => {
-          if(!updateState) callback(err);
+          if(!updateState) {
+            let data = {
+              error : true ,
+              message : MSG_ERR_DISABLE
+            }
+            callback (null, data);
+          }
           else if (updateState.status === 'disabled'){
             let data = {
               error : true ,
@@ -177,7 +185,7 @@ module.exports = function(Wallet) {
                     id: crypto.randomBytes(16).toString("hex"),
                     deposited_by: userId,
                     status: "success",
-                    deposited_at: Date.now().toISOString,
+                    deposited_at: timestamp,
                     amount: amount,
                     reference_id:  reference_id
                   
@@ -251,11 +259,11 @@ module.exports = function(Wallet) {
               if (err) callback(err)
               else {
                 let newRest = {
-                  deposit: {
+                  withdrawl: {
                       id: crypto.randomBytes(16).toString("hex"),
                       withdrawn_by: userId,
                       status: "success",
-                      withdrawn_at: Date.now().toISOString,
+                      withdrawn_at: timestamp,
                       amount: amount,
                       reference_id:  reference_id
                     
@@ -288,7 +296,6 @@ module.exports = function(Wallet) {
 
     Wallet.disableWallet = function(options, callback) {
       
-
       if (!options.accessToken) {
         let data = {
           error : true ,
@@ -299,9 +306,7 @@ module.exports = function(Wallet) {
         let userId = options.accessToken.userId
         var filter = {
           where: {
-            data: {
               owned_by : userId
-            }
           }
         }
 
@@ -313,9 +318,31 @@ module.exports = function(Wallet) {
             }
             callback (null, data);
           }
+          else if (!checkState || checkState.status === 'disabled') {
+            let data = {
+              error : true ,
+              message : MSG_ERR_DISABLE
+            }
+            callback (null, data);
+          }
           else {
-            checkState.updateAttributes({is_disable: true}, function(err, res){
-              callback (null, res);
+            checkState.updateAttributes({status: "disabled"}, function(err, res){
+              if(err) {
+                callback(err);
+              }
+              else {
+
+                let newRes = {
+                  wallet : {
+                    id: res.id,
+                    owned_by: res.owned_by,
+                    status: res.status,
+                    disabled_at: timestamp,
+                    balance: res.balance
+                  }
+                }
+                callback(null, newRes);
+              }
             })
           }
         })
