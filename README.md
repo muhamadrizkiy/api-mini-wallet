@@ -53,8 +53,268 @@ Run Loopback using the following command:
 $ node .
 ```
 
-Then, load [http://localhost:3000/](http://localhost:3000/) on your browser.
+Then, load [http://localhost/](http://localhost/) on your browser.
 
-And If you want to use the swagger you can go to [http://localhost:3000/explorer](http://localhost:3000/explorer) on your browser.
+And If you want to use the swagger you can go to [http://localhost/explorer](http://localhost/explorer) on your browser.
 
 NOTE: This API using memory database, so if you restart the node js server, the data was clean up.
+
+
+## API Documentation
+
+
+
+### Init Wallet Account
+
+Initial api to get an access_token.
+1. Register a new user with the User.create() method, inherited from the generic PersistedModel object. See Registering users for more information.
+```
+{
+  username: 'ea0212d3-abd6-406f-8c67-868e814a2436',
+  password: '$2a$10$/VaUTPSom17ziZEBA90mtucn9kaQuwSVTqtkrJ8ILZuucXw71n4h6',
+  email: 'muhamadrizkiy@gmail.com',
+  id: 1
+}
+```
+2. Log in a user by calling User.login() to get an access token. See Logging in users for more information.
+```
+{
+  ttl: 1209600,
+  userId: 1,
+  created: 2020-06-28T15:15:37.168Z,
+  id: 'VrbRVw9ZyEvLSGegZzuKG2zRluzWzTKDRVpzepblRiO44nDNA1RLAHJgvsvvnXLl'
+}
+```
+The id is a access_token, so we get the access_token from above.
+
+
+Request
+```
+curl --location --request POST 'http://localhost/api/v1/init' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'customer_xid=ea0212d3-abd6-406f-8c67-868e814a2436'
+```
+Response
+```
+{
+    "status": "Success",
+    "data": {
+        "token": "VrbRVw9ZyEvLSGegZzuKG2zRluzWzTKDRVpzepblRiO44nDNA1RLAHJgvsvvnXLl"
+    }
+}
+```
+
+
+### Enable Wallet
+
+
+Request
+```
+curl --location --request POST 'http://localhost/api/v1/wallet' \
+--header 'Authorization: NgJpzmRAwx7pw5bAnjhSSPSPQIVufFHygtV5XZBh1lqz6k7juCvXZsDBQU5AgyLB'
+```
+Response
+```
+{
+    "status": "Success",
+    "data": {
+        "wallet": {
+            "id": "0373edc043a28dbaaf1a17898380624b",
+            "owned_by": 1,
+            "status": "enabled",
+            "enable_at": "2020-06-28T15:19:48.144Z",
+            "balance": 0
+        }
+    }
+}
+```
+
+NOTE : Before enabling the wallet, the customer cannot view, add, or use its virtual money
+
+```
+{
+    "status": "Fail",
+    "data": {
+        "error": true,
+        "message": "Please Enable Your Wallet!"
+    }
+}
+```
+
+
+
+### Get wallet balance
+
+
+Request
+```
+curl --location --request GET 'http://localhost/api/v1/wallet' \
+--header 'Authorization: VrbRVw9ZyEvLSGegZzuKG2zRluzWzTKDRVpzepblRiO44nDNA1RLAHJgvsvvnXLl'
+```
+Response
+```
+{
+    "status": "Success",
+    "data": {
+        "wallet": {
+            "id": "0373edc043a28dbaaf1a17898380624b",
+            "owned_by": 1,
+            "status": "enabled",
+            "enable_at": "2020-06-28T15:19:48.144Z",
+            "balance": 0
+        }
+    }
+}
+```
+
+
+### Deposit
+
+
+Request
+```
+curl --location --request POST 'http://localhost/api/v1/wallet/deposits' \
+--header 'Authorization: VrbRVw9ZyEvLSGegZzuKG2zRluzWzTKDRVpzepblRiO44nDNA1RLAHJgvsvvnXLl' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'amount=100000' \
+--data-urlencode 'reference_id=50535246-dcb2-4929-8cc9-004ea06f5241'
+```
+Response
+```
+{
+    "status": "Success",
+    "data": {
+        "deposit": {
+            "id": "a6dc22d8980bfeffaf832362689a1641",
+            "deposited_by": 1,
+            "status": "success",
+            "deposited_at": "2020-06-28T15:15:33.536Z",
+            "amount": 100000,
+            "reference_id": "50535246-dcb2-4929-8cc9-004ea06f5241"
+        }
+    }
+}
+```
+
+
+### Withdrawal
+
+
+Request
+```
+curl --location --request POST 'http://localhost/api/v1/wallet/withdrawals' \
+--header 'Authorization: VrbRVw9ZyEvLSGegZzuKG2zRluzWzTKDRVpzepblRiO44nDNA1RLAHJgvsvvnXLl' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'amount=60000' \
+--data-urlencode 'reference_id=4b01c9bb-3acd-47dc-87db-d9ac483d20b2'
+```
+Response
+```
+{
+    "status": "Success",
+    "data": {
+        "withdrawl": {
+            "id": "0a02371d4338fd6181fc55cfc2ca73f2",
+            "withdrawn_by": 1,
+            "status": "success",
+            "withdrawn_at": "2020-06-28T15:15:33.536Z",
+            "amount": 60000,
+            "reference_id": "4b01c9bb-3acd-47dc-87db-d9ac483d20b2"
+        }
+    }
+}
+```
+
+And if the amount more than the current balance
+
+```
+{
+    "status": "Fail",
+    "data": {
+        "error": true,
+        "message": "The amount being used must not be more than the current balance."
+    }
+}
+```
+
+
+### Disable wallet
+
+
+Request
+```
+curl --location --request PATCH 'http://localhost/api/v1/wallet' \
+--header 'Authorization: VrbRVw9ZyEvLSGegZzuKG2zRluzWzTKDRVpzepblRiO44nDNA1RLAHJgvsvvnXLl' \
+--form 'is_disabled=true'
+```
+Response
+```
+{
+    "status": "Success",
+    "data": {
+        "wallet": {
+            "id": "0373edc043a28dbaaf1a17898380624b",
+            "owned_by": 1,
+            "status": "disabled",
+            "disabled_at": "2020-06-28T15:15:33.536Z",
+            "balance": 40000
+        }
+    }
+}
+```
+
+NOTE : If the wallet disabled, you cannot to view, add, or use its virtual money.
+
+```
+{
+    "status": "Fail",
+    "data": {
+        "error": true,
+        "message": "Please Enable Your Wallet!"
+    }
+}
+```
+
+## Data Source
+
+This API using built-in memory connector enables you to test your application without connecting to an actual persistent data source such as a database. Although the memory connector is very well tested it is not suitable for production.
+
+The memory connector supports:
+
+Standard query and create, read, update, and delete operations, so you can test models against an in-memory data source.
+
+/server/datasources.json
+```
+"db": {
+    "name": "db",
+    "connector": "memory"
+}
+```
+
+
+NOTE: If you specify the file property, the connector will save data there that will persist when you restart the application. Otherwise, the memory connector does not persist data after an application stops
+
+
+but, you can save the data if you need :
+
+server/datasources.json
+```
+{
+  "db": {
+    "name": "db",
+    "connector": "memory",
+    "file": "mydata.json"
+  }
+}
+```
+
+You can also set the persistence file in a boot script; for example:
+```
+var memory = loopback.createDataSource({
+  connector: loopback.Memory,
+  file: "mydata.json"
+});
+
+
+NOTE: When the application exits, the memory connector will then store data in the mydata.json file, and when it restarts will load the saved data from that file.
+```
