@@ -7,6 +7,7 @@
 
 const loopback = require('loopback');
 const boot = require('loopback-boot');
+var multer = require('multer');
 
 const app = module.exports = loopback();
 
@@ -25,6 +26,7 @@ app.start = function() {
 
 // Bootstrap the application, configure models, datasources and middleware.
 // Sub-apps like REST API are mounted via boot scripts.
+
 
 app.middleware('auth', loopback.token({
   currentUserLiteral: 'me'

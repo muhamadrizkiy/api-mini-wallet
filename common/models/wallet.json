@@ -1,23 +1,33 @@
 {
   "name": "wallet",
   "base": "PersistedModel",
-  "idInjection": true,
+  "plural": "wallet",
+  "idInjection": false,
   "options": {
     "validateUpsert": true
   },
   "properties": {
-    "amount": {
-      "type": "number",
-      "required": true,
-      "default": 0
+    "id": {
+      "type": "string",
+      "id": true 
     },
-    "is_disable": {
-      "type": "boolean",
-      "required": true,
-      "default": true
-    },
-    "userId": {
+    "owned_by": {
       "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "default": "enable"
+    },
+    "enable_at": {
+      "type": "date",
+      "default": "$now"
+    },
+    "disable_at": {
+      "type": "date"
+    },
+    "balance": {
+      "type": "number",
+      "default": 0
     }
   },
   "validations": [],
