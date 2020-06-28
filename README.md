@@ -275,6 +275,46 @@ NOTE : If the wallet disabled, you cannot to view, add, or use its virtual money
 }
 ```
 
+## Data Source
+
+This API using built-in memory connector enables you to test your application without connecting to an actual persistent data source such as a database. Although the memory connector is very well tested it is not suitable for production.
+
+The memory connector supports:
+
+Standard query and create, read, update, and delete operations, so you can test models against an in-memory data source.
+
+/server/datasources.json
+```
+"db": {
+    "name": "db",
+    "connector": "memory"
+}
+```
 
 
+NOTE: If you specify the file property, the connector will save data there that will persist when you restart the application. Otherwise, the memory connector does not persist data after an application stops
 
+
+but, you can save the data if you need :
+
+server/datasources.json
+```
+{
+  "db": {
+    "name": "db",
+    "connector": "memory",
+    "file": "mydata.json"
+  }
+}
+```
+
+You can also set the persistence file in a boot script; for example:
+```
+var memory = loopback.createDataSource({
+  connector: loopback.Memory,
+  file: "mydata.json"
+});
+
+
+NOTE: When the application exits, the memory connector will then store data in the mydata.json file, and when it restarts will load the saved data from that file.
+```
