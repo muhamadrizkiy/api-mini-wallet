@@ -26,7 +26,8 @@ module.exports = function(Wallet) {
     Wallet.disableRemoteMethodByName('upsertWithWhere');
     Wallet.disableRemoteMethodByName('unlink');
     Wallet.disableRemoteMethodByName('replace');
-    Wallet.disableRemoteMethodByName('change-stream');
+    Wallet.disableRemoteMethodByName('replaceById');
+    Wallet.disableRemoteMethodByName('createChangeStream');
 
     let date = new Date()
     let timestamp = date.toISOString()
@@ -150,7 +151,8 @@ module.exports = function(Wallet) {
       }
     );
 
-    Wallet.deposit = function(amount, reference_id, options, callback) {
+    Wallet.deposit = function(data, amount, reference_id, options, callback) {
+      console.log(data)
       
       if (!options.accessToken) {
         let data = {
@@ -208,8 +210,9 @@ module.exports = function(Wallet) {
       {
         description: 'Add virtual money to my wallet',
         accepts: [
-          {arg: 'amount', type: 'number', required: true},
-          {arg: 'reference_id', type: 'string', required: true},
+          {arg: 'data', type: 'object', 'http': {source: 'req'}},
+          {arg: 'amount', type: 'number'},
+          {arg: 'reference_id', type: 'string'},
           {arg: "options", type: "object", http: "optionsFromRequest"}
         ],
         returns: {
@@ -368,60 +371,4 @@ module.exports = function(Wallet) {
         }
     );
 
-    Wallet.remoteMethod(
-      'init',
-      {
-        description: 'Init my account wallet',
-        accepts: [
-          {arg: 'customer_xid', type: 'string', required: true}
-        ],
-        returns: {
-          arg: 'res', type: 'object', root: true
-        },
-        http: { path: '/init', verb: 'post' }
-      }
-    );
-
-
-    Wallet.init = function(customer_xid,callback) {
-      var password = 'password'
-      async.waterfall([
-        function(next) {
-          let User = Wallet.app.models.User
-          var accountData = {
-            username : customer_xid,
-            password : password,
-            email : 'muhamadrizkiy@gmail.com'
-          }
-          User.create(accountData, function(err, userInstance) {
-            console.log(userInstance)
-            if (err) next(err);
-            else next(null, userInstance);
-          });
-        },
-        function(userInstance, next) {
-          let User = Wallet.app.models.User
-          let data = {
-            username : userInstance.username,
-            password : password
-          }
-          User.login(data, function(err, result) {
-            console.log(result)
-            if (err) next(err);
-            else next(null, result);
-          });
-        },
-      ],
-      function(err, result) {
-        console.log(result)
-        if (err) callback(err);
-        else {
-          let newRes = {
-            token : result.id
-          }
-          callback(null, newRes);
-        }
-          
-      });
-    }
 };

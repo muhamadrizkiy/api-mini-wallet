@@ -1,6 +1,5 @@
 'use strict';
 
-let crypto = require('crypto');
 var async = require('async');
 
 
@@ -20,7 +19,8 @@ module.exports = function(Init) {
     Init.disableRemoteMethodByName('upsertWithWhere');
     Init.disableRemoteMethodByName('unlink');
     Init.disableRemoteMethodByName('replace');
-    Init.disableRemoteMethodByName('change-stream');
+    Init.disableRemoteMethodByName('replaceById');
+    Init.disableRemoteMethodByName('createChangeStream');
 
 
     Init.remoteMethod(
