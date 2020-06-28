@@ -38,5 +38,9 @@
   "wallet": {
     "dataSource": "db",
     "public": true
+  },
+  "init": {
+    "dataSource": "db",
+    "public": true
   }
 }
