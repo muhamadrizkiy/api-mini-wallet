@@ -1,0 +1,26 @@
+{
+  "ids": {
+    "User": 2,
+    "AccessToken": 2,
+    "ACL": 1,
+    "RoleMapping": 1,
+    "Role": 1,
+    "wallet": 2,
+    "init": 1
+  },
+  "models": {
+    "User": {
+      "1": "{\"username\":\"ea0212d3-abd6-406f-8c67-868e814a2436\",\"password\":\"$2a$10$Tcue.R8s1VdQbx6XKA/Bw.6ljRgELgpQDi3IiHC5sDAB8CRtqTue.\",\"email\":\"muhamadrizkiy@gmail.com\",\"id\":1}"
+    },
+    "AccessToken": {
+      "EJpDWQH1AE43tU93WO5LMqRsUreXDBqLx4p3ElTYGjo4lrlITw2QIpObRxuZoHDp": "{\"id\":\"EJpDWQH1AE43tU93WO5LMqRsUreXDBqLx4p3ElTYGjo4lrlITw2QIpObRxuZoHDp\",\"ttl\":1209600,\"created\":\"2020-06-28T16:26:15.145Z\",\"userId\":1}"
+    },
+    "ACL": {},
+    "RoleMapping": {},
+    "Role": {},
+    "wallet": {
+      "160036aafefedc7e16c2cb55a1dc8e36": "{\"id\":\"160036aafefedc7e16c2cb55a1dc8e36\",\"owned_by\":1,\"status\":\"enabled\",\"enable_at\":\"2020-06-28T16:27:14.396Z\",\"balance\":0}"
+    },
+    "init": {}
+  }
+}
